@@ -30,14 +30,16 @@
 
   Drupal.behaviors.actionTBResponsive = {
     attach: function (context) {
-      Drupal.TBResponsive.initResponsiveMenu();
-      $(window).resize(function(){
-        var windowWidth = window.innerWidth ? window.innerWidth : $(window).width();
-        if(windowWidth != Drupal.TBResponsive.oldWindowWidth){
-          Drupal.TBResponsive.updateResponsiveMenu();
-          Drupal.TBResponsive.oldWindowWidth = windowWidth;
-        }
-      });
+      if($('.region-menu-bar .sf-menu').length) {
+        Drupal.TBResponsive.initResponsiveMenu();
+        $(window).resize(function(){
+          var windowWidth = window.innerWidth ? window.innerWidth : $(window).width();
+          if(windowWidth != Drupal.TBResponsive.oldWindowWidth){
+            Drupal.TBResponsive.updateResponsiveMenu();
+            Drupal.TBResponsive.oldWindowWidth = windowWidth;
+          }
+        });
+      }
     }
   };
 })(jQuery);

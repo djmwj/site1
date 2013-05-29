@@ -22,28 +22,29 @@ function nucleus_preprocess_html(&$vars) {
 
   if ($grid_type == 'fluid') {
     nucleus_auto_generate_fluid_grids($grid_int, $layout_width_int);
-    drupal_add_css(file_get_contents("public://nucleus/grid-fluid-" . $grid_int . "-" . $layout_width_int . ".css"), array(
+    drupal_add_css("public://nucleus/grid-fluid-" . $grid_int . "-" . $layout_width_int . ".css", array(
       'group' => CSS_THEME,
-      'type' => 'inline',
+      'type' => 'file',
     ));
     if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== FALSE) {
-      drupal_add_css(file_get_contents("public://nucleus/grid-fluid-" . $grid_int . "-opera.css"), array(
+      drupal_add_css("public://nucleus/grid-fluid-" . $grid_int . "-opera.css", array(
         'group' => CSS_THEME,
-        'type' => 'inline',
+        'type' => 'file',
       ));
     }
   }
   else {
     nucleus_auto_generate_fixed_grids($grid_int, $layout_width);
-    drupal_add_css(file_get_contents("public://nucleus/grid-fixed-" . $grid_int . "-" . $layout_width . ".css"), array(
+    drupal_add_css("public://nucleus/grid-fixed-" . $grid_int . "-" . $layout_width . ".css", array(
       'group' => CSS_THEME,
-      'type' => 'inline',
+      'type' => 'file',
     ));
   }
 
   $vars['classes_array'][] = drupal_html_class($theme);
   $vars['classes_array'][] = $grid_type . "-grid";
-
+  $vars['classes_array'][] = "grid-" . $grid_int . "-based";
+  
   $fonts_arr = nucleus_default_fonts_arr();
   $used_gwf_list = array();
   $used_custom_font_list = array();
@@ -124,6 +125,14 @@ function nucleus_preprocess_html(&$vars) {
       $vars['classes_array'][] = $class_name;
     }
   }
+
+  $current_skin = theme_get_setting('skin');
+  if (isset($_COOKIE['nucleus_skin'])) {
+    $current_skin = $_COOKIE['nucleus_skin'];
+  }
+  if(!empty($current_skin) && $current_skin != 'default') {
+    $vars['classes_array'][] = $current_skin . "-skin";
+  }  
 }
 
 /**
@@ -241,7 +250,11 @@ function nucleus_preprocess_page(&$vars) {
   $default_logo = theme_get_setting("default_logo");
   $toggle_logo = theme_get_setting("toggle_logo");
   if (!empty($current_skin) && $current_skin != 'default'  && $default_logo && $toggle_logo) {
-    $vars['logo'] = file_create_url(drupal_get_path('theme', $theme_key)) . "/skins/" . $current_skin . "/logo.png";
+    $logo_path = drupal_get_path('theme', $theme_key) . "/skins/" . $current_skin . "/logo.png";
+    $logo_url = file_create_url($logo_path);
+    if(file_exists($logo_path)) {
+      $vars['logo'] = $logo_url;
+    }
   }
   drupal_add_js('
 	(function ($) {
@@ -253,7 +266,7 @@ function nucleus_preprocess_page(&$vars) {
 		  jQuery(".change-skin-button").click(function() {
 			parts = this.href.split("/");
 			style = parts[parts.length - 1];
-			jQuery.cookie("nucleus_skin", style, {path: "/"});
+			jQuery.cookie("nucleus_skin", style, {path: "' . base_path() . '"});
 			window.location.reload();
 			return false;
 		  });

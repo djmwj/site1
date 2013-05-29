@@ -238,10 +238,3 @@ settings[default_logo] = 1
 settings[logo_path] = ''
 settings[default_favicon] = 1
 settings[favicon_path] = ''
-
-; Information added by drupal.org packaging script on 2013-01-05
-version = "7.x-1.0"
-core = "7.x"
-project = "tb_sirate"
-datestamp = "1357382342"
-

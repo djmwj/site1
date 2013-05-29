@@ -75,7 +75,7 @@
   <a name="Top" id="Top"></a>
 
   <!-- HEADER -->
-  <div id="header-wrapper" class="wrapper">
+  <header id="header-wrapper" class="wrapper">
     <div class="container <?php print $grid; ?>">
       <div class="grid-inner clearfix">
         <div id="header" class="clearfix">
@@ -123,52 +123,52 @@
         </div>
       </div>
     </div>
-  </div>
+  </header>
   <!-- /#HEADER -->
 
   <?php if ($menu_bar = render($page['menu_bar'])): ?>
     <!-- MAIN NAV -->
-    <div id="menu-bar-wrapper" class="wrapper">
+    <nav id="menu-bar-wrapper" class="wrapper">
       <div class="container <?php print $grid; ?>">
         <div class="grid-inner clearfix">
           <?php print $menu_bar; ?>
         </div>
       </div>
-    </div>
+    </nav>
     <!-- /#MAIN NAV -->
   <?php endif;?>
 
   <?php if ($slideshow = render($page['slideshow'])): ?>
     <!-- SLIDESHOW -->
-    <div id="slideshow-wrapper" class="wrapper">
+    <section id="slideshow-wrapper" class="wrapper">
       <div class="container <?php print $grid; ?>">
         <div class="grid-inner clearfix">
           <?php print $slideshow; ?>
         </div>
       </div>
-    </div>
+    </section>
     <!-- /#SLIDESHOW -->
   <?php endif;?>
 
   <?php if ($messages || $page['help']): ?>
     <!-- HELP -->
-    <div id="system-messages-wrapper" class="wrapper container-16">
+    <section id="system-messages-wrapper" class="wrapper container-16">
       <div class="container <?php print $grid; ?>">
         <div class="grid-inner clearfix">
           <?php print $messages . render($page['help']); ?>
         </div>
       </div>
-    </div>
+    </section>
     <!-- /#HELP -->
   <?php endif; ?>
 
   <?php if ($panel_first): ?>
     <!-- PANEL FIRST -->
-    <div id="panel-first-wrapper" class="wrapper panel panel-first">
+    <section id="panel-first-wrapper" class="wrapper panel panel-first">
       <div class="container <?php print $grid;?> clearfix">
         <?php print $panel_first;?>
       </div>
-    </div>
+    </section>
     <!-- /#PANEL FIRST -->
   <?php endif; ?>
 
@@ -178,7 +178,7 @@
 
         <div class="<?php print nucleus_group_class("content, sidebar_first");?>">
           <!-- MAIN CONTENT -->
-          <div id="main-content" class="tb-main-box <?php print $content_width;?> section">
+          <section id="main-content" class="tb-main-box <?php print $content_width;?> section">
             <div class="grid-inner clearfix">
               <?php if ($tabs = render($tabs)): ?>
                 <div class="tabs"><?php print $tabs; ?></div>
@@ -201,27 +201,27 @@
 
               <?php print $feed_icons; ?>
             </div>
-          </div>
+          </section>
           <!-- /#MAIN CONTENT -->
 
           <?php if (($sidebar_first = render($page['sidebar_first'])) && $sidebar_first_width) : ?>
             <!-- SIDEBAR FIRST -->
-            <div id="sidebar-first-wrapper" class="sidebar tb-main-box <?php print $sidebar_first_width;?>">
+            <aside id="sidebar-first-wrapper" class="sidebar tb-main-box <?php print $sidebar_first_width;?>">
               <div class="grid-inner clearfix">
                 <?php print $sidebar_first; ?>
               </div>
-            </div>
+            </aside>
             <!-- /#SIDEBAR FIRST -->
           <?php endif; ?>
         </div>
 
         <?php if (($sidebar_second = render($page['sidebar_second'])) && $sidebar_second_width): ?>
           <!-- SIDEBAR SECOND -->
-          <div id="sidebar-second-wrapper" class="sidebar tb-main-box <?php print $sidebar_second_width;?>">
+          <aside id="sidebar-second-wrapper" class="sidebar tb-main-box <?php print $sidebar_second_width;?>">
             <div class="grid-inner clearfix">
               <?php print $sidebar_second; ?>
             </div>
-          </div>
+          </aside>
           <!-- /#SIDEBAR SECOND -->
         <?php endif; ?>
 
@@ -231,7 +231,7 @@
 
   <?php if ($breadcrumb || $back_to_top_display): ?>
     <!-- BREADCRUMB -->
-    <div id="breadcrumb-wrapper" class="wrapper">
+    <section id="breadcrumb-wrapper" class="wrapper">
       <div class="container <?php print $grid;?>">
           <div class="grid-inner clearfix">
           <?php if ($breadcrumb):?>
@@ -243,29 +243,19 @@
           <?php endif; ?>
           </div>
       </div>
-    </div>
+    </section>
     <!-- /#BREADCRUMB -->
-  <?php endif; ?>
-
-  <?php if ($panel_second): ?>
-    <!-- PANEL SECOND -->
-    <div id="panel-second-wrapper" class="wrapper panel panel-second">
-      <div class="container <?php print $grid;?> clearfix">
-        <?php print $panel_second;?>
-      </div>
-    </div>
-    <!-- /#PANEL SECOND -->
   <?php endif; ?>
 
   <?php if ($footer = render($page['footer'])): ?>
     <!-- FOOTER -->
-    <div id="footer-wrapper" class="wrapper container-16">
+    <footer id="footer-wrapper" class="wrapper container-16">
       <div class="container <?php print $grid; ?>">
         <div class="grid-inner clearfix">
           <div id="footer" class="clearfix"><?php print $footer; ?></div>
         </div>
       </div>
-    </div>
+    </footer>
     <!-- /#FOOTER -->
   <?php endif; ?>
 </div>

@@ -15,6 +15,10 @@ scripts[] = 'js/jquery.cookie.js'
 stylesheets-conditional[IE 7][all][] = css/ie7.css
 stylesheets-conditional[IE][all][] = css/ie.css
 
+; Responsive
+stylesheets[only screen][] = 'css/responsive/responsive.css'
+
+
 ;Core regions
 regions[content] = 'Main content'
 regions[header] = 'Header'
@@ -35,11 +39,6 @@ regions[panel_first_1] = 'Panel first column 1'
 regions[panel_first_2] = 'Panel first column 2'
 regions[panel_first_3] = 'Panel first column 3'
 regions[panel_first_4] = 'Panel first column 4'
-
-regions[panel_second_1] = 'Panel second column 1'
-regions[panel_second_2] = 'Panel second column 2'
-regions[panel_second_3] = 'Panel second column 3'
-regions[panel_second_4] = 'Panel second column 4'
 
 ;Features (core settings)
 features[] = 'logo'
@@ -98,10 +97,3 @@ supported_grids[max] = 100
 supported_grids[delta] = 2
 
 settings[show_skins_menu] = 1
-
-; Information added by drupal.org packaging script on 2012-11-15
-version = "7.x-1.2"
-core = "7.x"
-project = "nucleus"
-datestamp = "1353011329"
-

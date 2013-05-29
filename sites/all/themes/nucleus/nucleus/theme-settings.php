@@ -528,7 +528,7 @@ function nucleus_form_system_theme_settings_submit($form, &$form_state) {
     }
   }
   if(isset($form_state['input']['skin']) && $form_state['input']['skin'] != $form_state['complete form']['nucleus']['layout']['skin']['#default_value']) {
-    setcookie('nucleus_skin', $form_state['input']['skin'], time() + 100000, "/");
+    setcookie('nucleus_skin', $form_state['input']['skin'], time() + 100000, base_path());
   }
 }
 

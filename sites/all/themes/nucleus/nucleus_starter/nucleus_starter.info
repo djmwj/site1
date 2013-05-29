@@ -134,10 +134,3 @@ superfish_styles[starter] = 'Starter Style for Superfish'
 
 ;Quicktabs Styles
 quicktabs_styles[starter] = 'Starter style for Quicktabs'
-
-; Information added by drupal.org packaging script on 2012-11-15
-version = "7.x-1.2"
-core = "7.x"
-project = "nucleus"
-datestamp = "1353011329"
-

@@ -151,6 +151,7 @@ ul.pager li span {
 }
 
 #menu-bar-wrapper .container {
+  background: none;
   padding-bottom: 0;
 }
 
@@ -163,7 +164,7 @@ ul.pager li span {
   padding: 0;
 }
 
-#menu-bar-wrapper .container {
+#menu-bar-wrapper .block-superfish {
   background: #3b3b3b;
 }
 
@@ -298,6 +299,11 @@ ul.pager li span {
 .field-type-image img {
   height: auto;
   width: 100%;
+}
+
+#panel-second-wrapper .block-content a {
+  float: left;
+  margin-top: 10px;
 }
 
 #panel-fourth-wrapper .cols-3 .views-row {

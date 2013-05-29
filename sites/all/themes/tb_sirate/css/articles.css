@@ -436,11 +436,11 @@
 }
 
 .galleryformatter-greenarrows .gallery-thumbs .forward {
-  background-position: 0 -70px;
+  background-position: 0 -70px !important;
 }
 
 .galleryformatter-greenarrows .gallery-thumbs .forward:hover {
-  background-position: 0 -105px;
+  background-position: 0 -105px !important;
 }
 
 .galleryformatter-greenarrows .gallery-thumbs li a:hover img,
