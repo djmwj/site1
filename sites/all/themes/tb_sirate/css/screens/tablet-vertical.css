@@ -6,16 +6,12 @@ body {
   overflow-x: hidden;
 }
 
-#header {
-  height: 49px;
-}
-
 #page {  
   position: relative;
 }
 
 #header {
-  height: 49px;
+  height: 85px;
   padding-top: 65px;
 }
 
