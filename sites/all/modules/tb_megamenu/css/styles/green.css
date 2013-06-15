@@ -46,11 +46,11 @@
   outline: none;
 }
 
-.block-view-demo .views-field-field-image img {
+.tb-megamenu .block-view-demo .views-field-field-image img {
   border: 1px solid #eee;
 }
 
-.block-view-demo .item-list ul li {
+.tb-megamenu .block-view-demo .item-list ul li {
   border-bottom: 1px solid #eee;
 }
 

@@ -356,6 +356,8 @@ span.button input.form-submit:hover {
   background: #000;
   border: 1px solid #1a1a1a;
   color: #777;
+  height: auto;
+  line-height: normal;
   width: 90%;
 }
 
@@ -363,6 +365,8 @@ span.button input.form-submit:hover {
   background: #000;
   border: 1px solid #1a1a1a;
   color: #777;
+  height: auto;
+  line-height: normal;
   width: 90%;
 }
 
