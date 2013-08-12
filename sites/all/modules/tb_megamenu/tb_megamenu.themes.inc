@@ -3,37 +3,25 @@
 function template_preprocess_tb_megamenu(&$vars) {
   $menu_name = $vars['menu_name'];
   if($vars['section'] == 'backend') {
-    global $menu_admin;
-    $sql = "
-      SELECT m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.delivery_callback, m.title, m.title_callback, m.title_arguments, m.type, m.description, ml.*
-      FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path
-      WHERE ml.menu_name = :menu
-      ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC";
-    $result = db_query($sql, array(':menu' => $menu_name), array('fetch' => PDO::FETCH_ASSOC));
-    $links = array();
-    foreach ($result as $item) {
-      $item['href'] = $item['link_path'];
-      $links[] = $item;
-    }
-    $items = menu_tree_data($links);
-    $node_links = array();
-    menu_tree_collect_node_links($items, $node_links);
-    $menu_admin = TRUE;
-    menu_tree_check_access($items, $node_links);
-    $menu_admin = FALSE;
+    $items = tb_megamenu_get_tree($menu_name);
   }
   else {
     $items = menu_tree_all_data($menu_name);
   }
+  if (function_exists('i18n_menu_localize_tree')) {
+    $items = i18n_menu_localize_tree($items);
+  }  
   $items_page = menu_tree_page_data($menu_name);
   $trail = tb_megamenu_build_page_trail($items_page);
   $menu_config = tb_megamenu_get_menu_config($menu_name);
   $block_config = tb_megamenu_get_block_config($menu_name);
-  tb_megamenu_sync_config_all($items, $menu_config);
+  tb_megamenu_sync_config_all($items, $menu_config, $vars['section']);
   tb_megamenu_edit_block_config($block_config);
   $vars['classes_array'][] = "tb-megamenu-" . str_replace('_', '-', $menu_name);
   if($vars['section'] == 'frontend' && $block_config['style'] != '') {
-    drupal_add_css(drupal_get_path("module", "tb_megamenu") . "/css/styles/" . $block_config['style'] . ".css");
+    drupal_add_css(drupal_get_path("module", "tb_megamenu") . "/css/styles/" . $block_config['style'] . ".css", array(
+        'basename' => "tb-megamenu-style-" . $block_config['style'] . ".css",
+      ));
     $vars['classes_array'][] = "style-" . $block_config['style'];
   }
   if($block_config['animation'] != 'none') {
@@ -217,6 +205,7 @@ function template_preprocess_tb_megamenu_row(&$vars) {
     ));
   }
   $vars['columns'] = implode("\n", $cols);
+  $vars['classes_array'][] = 'row-fluid';  
 }
 
 function template_preprocess_tb_megamenu_column(&$vars) {
@@ -244,9 +233,12 @@ function template_preprocess_tb_megamenu_column(&$vars) {
       $tb_items[] = theme('tb_megamenu_block', array(
         'block_key' => $tb_item['block_key'],
         'section' => $vars['section'],
+        'showblocktitle' => $col_config['showblocktitle']
       ));
+      $vars['attributes_array']['data-showblocktitle'] = $col_config['showblocktitle'];
+      
       if ($vars['section'] !== 'frontend') {
-        $vars['close_button'] = '<span class="close" title="' . t("Remove this block") . '">X</span>';
+        $vars['close_button'] = '<span class="close icon-remove" title="' . t("Remove this block") . '">&nbsp;</span>';
       }
     }
   }
@@ -297,12 +289,20 @@ function template_preprocess_tb_megamenu_block(&$vars) {
     $module = $block->module;
     $delta = $block->delta;
     $content = module_invoke($module, 'block_view', $delta);
-    $block->subject = empty($content['subject']) ? $block->title : $content['subject'];
+    if(isset($vars['showblocktitle']) && $vars['showblocktitle']) {
+      $block->subject = empty($content['subject']) ? $block->title : $content['subject'];
+    }
+    else {
+      $block->subject = "";
+    }
     if(empty($content) && $vars['section'] == 'backend') {
       $vars['content'] = tb_megamenu_get_block_title($vars['block_key']);
     }
     elseif($content) {
       $vars['content'] = theme("block", array('elements' => array('content' => $content['content'], '#children' => (is_array($content['content']) ? drupal_render($content['content']) : $content['content']), '#block' => $block)));
+    }
+    else {
+      $vars['content'] = NULL;
     }
     $vars['classes_array'][] = "tb-block";
     $vars['classes_array'][] = "tb-megamenu-block";

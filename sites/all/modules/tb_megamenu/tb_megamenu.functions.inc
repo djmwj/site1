@@ -127,8 +127,37 @@ function tb_megamenu_find_templates($path) {
   return $templates;
 }
 
+function tb_megamenu_get_tree($menu_name) {
+  static $trees = array();
+  if(!isset($trees[$menu_name])) {
+    global $menu_admin;
+    $sql = "
+      SELECT m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.delivery_callback, m.title, m.title_callback, m.title_arguments, m.type, m.description, ml.*
+      FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path
+      WHERE ml.menu_name = :menu
+      ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC";
+    $result = db_query($sql, array(':menu' => $menu_name), array('fetch' => PDO::FETCH_ASSOC));
+    $links = array();
+    foreach ($result as $item) {
+      $item['href'] = $item['link_path'];
+      $links[] = $item;
+    }
+    $items = menu_tree_data($links);
+    $node_links = array();
+    menu_tree_collect_node_links($items, $node_links);
+    $menu_admin = TRUE;
+    menu_tree_check_access($items, $node_links);
+    $menu_admin = FALSE;
+    $trees[$menu_name] = $items;
+  }
+  return $trees[$menu_name];
+}
+
 function tb_megamenu_get_menu_item($menu_name, $mlid) {
-  $tree = menu_tree_all_data($menu_name);
+  $tree = tb_megamenu_get_tree($menu_name);
+  if (function_exists('i18n_menu_localize_tree')) {
+    $tree = i18n_menu_localize_tree($tree);
+  } 
   $item = tb_megamenu_find_menu_item($tree, $mlid);
   return $item;
 }
@@ -153,21 +182,37 @@ function tb_megamenu_load_block($block_key) {
   return isset($blocks[$block_key]) ? $blocks[$block_key] : NULL;
 }
 
-function tb_megamenu_sync_config_all($items, &$menu_config) {
+function tb_megamenu_sync_config_all($items, &$menu_config, $section) {
   foreach($items as $item) {
     $mlid = $item['link']['mlid'];
     $item_config = isset($menu_config[$mlid]) ? $menu_config[$mlid] : array();
     if(!$item['link']['hidden'] && (!empty($item['below']) || !empty($item_config))) {
-      tb_megamenu_sync_config($item['below'], $item_config, $mlid);
+      tb_megamenu_sync_config($item['below'], $item_config, $mlid, $section);
       $menu_config[$mlid] = $item_config;
-      tb_megamenu_sync_config_all($item['below'], $menu_config);
+      tb_megamenu_sync_config_all($item['below'], $menu_config, $section);
     }
   }
 }
 
-function tb_megamenu_sync_config($items, &$item_config, $_mlid) {
-  if(empty($item_config)) {
-    $item_config = array('rows_content' => array(0 => array(0 => array('col_content' => array(), 'col_config' => array()))), 'submenu_config' => array());
+function tb_megamenu_block_content_exists($block_key, $section) {
+  $block = tb_megamenu_load_block($block_key);
+  if($block) {
+    $module = $block->module;
+    $delta = $block->delta;
+    $content = module_invoke($module, 'block_view', $delta);
+    if(empty($content) && $section == 'backend') {
+      return true;
+    }
+    elseif($content) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function tb_megamenu_sync_config($items, &$item_config, $_mlid, $section) {
+  if(empty($item_config['rows_content'])) {
+    $item_config['rows_content'] = array(0 => array(0 => array('col_content' => array(), 'col_config' => array()))); 
     foreach($items as $item) {
       $mlid = $item['link']['mlid'];
       if(!$item['link']['hidden']) {
@@ -175,6 +220,7 @@ function tb_megamenu_sync_config($items, &$item_config, $_mlid) {
           'type' => 'menu_item',
           'mlid' => $mlid,
           'tb_item_config' => array(),
+          'weight' => $item['link']['weight'],
         );
       }
     }
@@ -192,6 +238,7 @@ function tb_megamenu_sync_config($items, &$item_config, $_mlid) {
             $existed = false;
             foreach ($items as $item) {
               if (!$item['link']['hidden'] && $tb_item['mlid'] == $item['link']['mlid']) {
+                $item_config['rows_content'][$i][$j]['col_content'][$k]['weight'] = $item['link']['weight'];
                 $existed = true;
                 break;
               }
@@ -204,6 +251,17 @@ function tb_megamenu_sync_config($items, &$item_config, $_mlid) {
               if(empty($item_config['rows_content'][$i])) {
                 unset($item_config['rows_content'][$i]);
               }
+            }
+          }
+          else {
+            if(!tb_megamenu_block_content_exists($tb_item['block_key'], $section)) {
+              unset($item_config['rows_content'][$i][$j]['col_content'][$k]);
+              if(empty($item_config['rows_content'][$i][$j]['col_content'])) {
+                unset($item_config['rows_content'][$i][$j]);
+              }
+              if(empty($item_config['rows_content'][$i])) {
+                unset($item_config['rows_content'][$i]);
+              }              
             }
           }
         }
@@ -219,25 +277,37 @@ function tb_megamenu_sync_config($items, &$item_config, $_mlid) {
           continue;
         }
         if($row > -1) {
-          $item_config['rows_content'][$row][$col]['col_content'][] = array(
-            'mlid' => $mlid,
-            'type' => 'menu_item',
-            'tb_item_config' => array(),
-          );
+          tb_megamenu_insert_tb_item($item_config, $row, $col, $item);
         }
         else {
           $row = 0;
           $col = 0;
-          $item_config['rows_content'][$row][$col]['col_content'][] = array(
-            'mlid' => $mlid,
-            'type' => 'menu_item',
-            'tb_item_config' => array(),
-          );
+          while(isset($item_config['rows_content'][$row][$col]['col_content']) && $item_config['rows_content'][$row][$col]['col_content'][0]['type'] == 'block') {
+            $row ++;
+          }
+          tb_megamenu_insert_tb_item($item_config, $row, $col, $item);
           $item_config['rows_content'][$row][$col]['col_config'] = array();
         }
       }
     }
   }
+}
+
+function tb_megamenu_insert_tb_item(&$item_config, $row, $col, $item) {
+  $i = 0;
+  $col_content = isset($item_config['rows_content'][$row][$col]['col_content']) ? $item_config['rows_content'][$row][$col]['col_content'] : array();
+  while($i < count($col_content) && $col_content[$i]['weight'] < $item['link']['weight']) {
+    $i ++;
+  }
+  for($j = count($col_content); $j > $i; $j --) {
+    $item_config['rows_content'][$row][$col]['col_content'][$j] = $item_config['rows_content'][$row][$col]['col_content'][$j - 1];
+  }
+  $item_config['rows_content'][$row][$col]['col_content'][$i] = array(
+    'mlid' => $item['link']['mlid'],
+    'type' => 'menu_item',
+    'weight' => $item['link']['weight'],
+    'tb_item_config' => array(),
+  );
 }
 
 function tb_megamenu_array_to_object($array) {
@@ -297,6 +367,9 @@ function tb_megamenu_edit_col_config(&$col_config) {
   }
   if(!isset($col_config['hidewcol'])) {
     $col_config['hidewcol'] = 0;
+  }
+  if(!isset($col_config['showblocktitle'])) {
+    $col_config['showblocktitle'] = 0;
   }
 }
 
